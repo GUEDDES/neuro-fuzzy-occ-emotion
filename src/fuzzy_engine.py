@@ -56,14 +56,58 @@ def build_rules():
 
 
 class FuzzyOCCEngine:
-    def __init__(self, rules=None, n_grid=1001):
+    def __init__(
+        self,
+        rules=None,
+        n_grid=1001,
+        use_calibrated=False,
+        use_it2=False,
+        delta=0.03,
+        weights=None,
+    ):
+        from config import (
+            CALIBRATED_WEIGHTS,
+            INPUT_TERMS_CALIBRATED,
+            IT2_DELTA,
+            W_NEUTRAL,
+        )
+
         self.rules = rules or build_rules()
         self.n_grid = n_grid
+        self.use_calibrated = use_calibrated
+        self.use_it2 = use_it2
+        self.delta = delta if delta is not None else IT2_DELTA
         self.y_grid = np.linspace(0.0, 1.0, n_grid)
         self.output_mfs = {
             term: trapezoid(self.y_grid, *params)
             for term, params in OUTPUT_TERMS.items()
         }
+
+        if use_calibrated:
+            self.input_terms = INPUT_TERMS_CALIBRATED
+            self.weights = weights or CALIBRATED_WEIGHTS
+            self.w_neutral = W_NEUTRAL
+        else:
+            self.input_terms = INPUT_TERMS
+            self.weights = weights or {r[3]: 1.0 for r in self.rules}
+            self.w_neutral = 0.0
+
+    def mf_eval(self, x, term):
+        params = self.input_terms[term]
+        if self.use_it2 and self.delta > 0:
+            a1, a2, a3, a4 = params
+            d = self.delta
+            if a1 <= -0.99 and a2 <= -0.99:
+                lmf = trapezoid(x, -1.0, -1.0, a3 - d, a4 - d)
+                umf = trapezoid(x, -1.0, -1.0, min(1.0, a3 + d), min(1.0, a4 + d))
+            elif a3 >= 0.99 and a4 >= 0.99:
+                lmf = trapezoid(x, a1 + d, a2 + d, 1.0, 1.0)
+                umf = trapezoid(x, max(-1.0, a1 - d), max(-1.0, a2 - d), 1.0, 1.0)
+            else:
+                lmf = trapezoid(x, a1 + d, a2 + d * 0.5, a3 - d * 0.5, a4 - d)
+                umf = trapezoid(x, a1 - d, a2 - d * 0.5, a3 + d * 0.5, a4 + d)
+            return float(0.5 * (lmf + umf))
+        return float(trapezoid(x, *params))
 
     def infer(self, d, p, pi, theta=0.0, crisp=False, hard_agent=False):
         """Perform fuzzy inference for single input (d, p, pi).
@@ -78,15 +122,14 @@ class FuzzyOCCEngine:
 
         if crisp:
             # Boolean terms
-            best_d = max(INPUT_TERMS.keys(), key=lambda t: float(trapezoid(d, *INPUT_TERMS[t])))
-            best_p = max(INPUT_TERMS.keys(), key=lambda t: float(trapezoid(p, *INPUT_TERMS[t])))
+            best_d = max(self.input_terms.keys(), key=lambda t: float(trapezoid(d, *self.input_terms[t])))
+            best_p = max(self.input_terms.keys(), key=lambda t: float(trapezoid(p, *self.input_terms[t])))
             best_agent = max(pi.items(), key=lambda kv: kv[1])[0]
 
             profile = {}
             for agent, d_term, p_term, e, tau in self.rules:
                 match = (agent == best_agent) and (d_term == best_d) and (p_term is None or p_term == best_p)
                 if match:
-                    # In crisp mode, activation is 1.0, intensity is midpoint of tau
                     mid = {"Low": 0.2, "Medium": 0.5, "High": 0.8}[tau]
                     rule = (agent, d_term, p_term, e, tau)
                     profile[e] = (1.0, mid, tau, (1.0, rule))
@@ -96,10 +139,11 @@ class FuzzyOCCEngine:
         rule_firings = {}  # e -> list of (f_k, rule)
         for rule in self.rules:
             agent, d_term, p_term, e, tau = rule
-            strengths = [float(trapezoid(d, *INPUT_TERMS[d_term])), float(pi[agent])]
+            w_e = self.weights.get(e, 1.0)
+            strengths = [self.mf_eval(d, d_term), float(pi[agent])]
             if p_term is not None:
-                strengths.append(float(trapezoid(p, *INPUT_TERMS[p_term])))
-            f_k = min(strengths)
+                strengths.append(self.mf_eval(p, p_term))
+            f_k = min(strengths) * w_e
             if f_k > 0:
                 clipped = np.minimum(f_k, self.output_mfs[tau])
                 agg[e] = np.maximum(agg.get(e, 0.0), clipped)
@@ -123,15 +167,25 @@ class FuzzyOCCEngine:
 
         return profile
 
-    def decide(self, d, p, pi, theta=0.3, dataset="envent", crisp=False, hard_agent=False):
+    def decide(self, d, p, pi, theta=0.35, dataset="envent", crisp=False, hard_agent=False):
         """Produce final label, intensity, and explanation."""
         profile = self.infer(d, p, pi, theta=0.0, crisp=crisp, hard_agent=hard_agent)
         mapping = TO_ENVENT if dataset.lower() == "envent" else TO_EMOWOZ
 
-        if not profile or max(v[0] for v in profile.values()) < theta:
+        # Calculate neutral appraisal score if calibrated
+        neu_score = 0.0
+        if self.use_calibrated and self.w_neutral > 0:
+            mu_d0 = self.mf_eval(d, "0")
+            mu_p0 = self.mf_eval(p, "0")
+            neu_score = self.w_neutral * min(mu_d0, mu_p0)
+
+        max_alpha = max((v[0] for v in profile.values()), default=0.0)
+
+        # Predict neutral if threshold not reached or neutral appraisal exceeds emotion activation
+        if max_alpha < theta or (self.use_calibrated and neu_score > max_alpha):
             null_label = mapping[None]
-            explanation = "No appraisal pattern reaches activation threshold theta."
-            return null_label, None, 0.0, 0.0, "None", explanation, profile
+            explanation = "No appraisal pattern reaches activation threshold theta (or neutral appraisal dominates)."
+            return null_label, None, float(max_alpha), 0.0, "None", explanation, profile
 
         # Top-ranked OCC type (break ties with compound)
         best_e = max(profile.keys(), key=lambda e: (profile[e][0], e in COMPOUND))
@@ -149,7 +203,7 @@ class FuzzyOCCEngine:
 
         agent, d_term, p_term, _, _ = rule
         d_name = D_NAMES.get(d_term, d_term)
-        d_deg = float(trapezoid(d, *INPUT_TERMS[d_term]))
+        d_deg = self.mf_eval(d, d_term)
 
         pi_val = pi[agent] if isinstance(pi, dict) else pi[AGENTS.index(agent)]
 
@@ -159,7 +213,7 @@ class FuzzyOCCEngine:
 
         if p_term is not None:
             p_name = P_NAMES.get(p_term, p_term)
-            p_deg = float(trapezoid(p, *INPUT_TERMS[p_term]))
+            p_deg = self.mf_eval(p, p_term)
             parts.append(f"and the action is evaluated as {p_name} ({p_deg:.2f}).")
         else:
             parts[-1] += "."

@@ -20,6 +20,32 @@ INPUT_TERMS = {
     "+": (0.2, 0.5, 0.5, 0.8),       # D  / P
     "++": (0.5, 0.8, 1.0, 1.0),      # HD / HP
 }
+
+# Calibrated Ruspini partition parameters tuned on enVENT validation split
+INPUT_TERMS_CALIBRATED = {
+    "--": (-1.0, -1.0, -0.80, -0.55),
+    "-": (-0.80, -0.55, -0.55, -0.25),
+    "0": (-0.55, -0.25, 0.25, 0.55),
+    "+": (0.25, 0.55, 0.55, 0.80),
+    "++": (0.55, 0.80, 1.0, 1.0),
+}
+
+# Calibrated OCC rule weights tuned on enVENT validation split
+CALIBRATED_WEIGHTS = {
+    "Joy": 1.325,
+    "Gratitude": 1.325,
+    "Admiration": 1.325,
+    "Pride": 0.884,
+    "Gratification": 0.884,
+    "Distress": 1.551,
+    "Anger": 0.790,
+    "Reproach": 0.790,
+    "Shame": 1.216,
+    "Remorse": 1.216,
+}
+W_NEUTRAL = 1.075
+IT2_DELTA = 0.03
+
 D_NAMES = {"--": "HU", "-": "U", "0": "N", "+": "D", "++": "HD"}
 P_NAMES = {"--": "HB", "-": "B", "0": "N", "+": "P", "++": "HP"}
 

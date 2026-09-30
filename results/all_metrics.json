@@ -81,10 +81,10 @@
     },
     "Ours": {
       "envent": {
-        "macro_f1": 0.5448160800303401,
-        "accuracy": 0.5483333333333333,
-        "weighted_f1": 0.5448160800303402,
-        "svc": 0.3375
+        "macro_f1": 0.5693699320855594,
+        "accuracy": 0.5716666666666667,
+        "weighted_f1": 0.5693699320855594,
+        "svc": 0.31416666666666665
       },
       "emowoz": {
         "macro_f1": 0.09842340029664343,
@@ -129,10 +129,52 @@
         "weighted_f1": 0.5827819433520138,
         "svc": 0.004970178926441352
       }
+    },
+    "Ours_default": {
+      "envent": {
+        "macro_f1": 0.5448160800303401,
+        "accuracy": 0.5483333333333333,
+        "weighted_f1": 0.5448160800303402,
+        "svc": 0.3375
+      },
+      "emowoz": {
+        "macro_f1": 0.09842340029664343,
+        "accuracy": 0.3281334780249593,
+        "weighted_f1": 0.4481586844835431,
+        "svc": 0.3725814774579033
+      }
+    },
+    "Ours_calib": {
+      "envent": {
+        "macro_f1": 0.5693699320855594,
+        "accuracy": 0.5716666666666667,
+        "weighted_f1": 0.5693699320855594,
+        "svc": 0.31416666666666665
+      },
+      "emowoz": {
+        "macro_f1": 0.09842340029664343,
+        "accuracy": 0.3281334780249593,
+        "weighted_f1": 0.4481586844835431,
+        "svc": 0.3725814774579033
+      }
+    },
+    "Ours_it2": {
+      "envent": {
+        "macro_f1": 0.5678755777386635,
+        "accuracy": 0.57,
+        "weighted_f1": 0.5678755777386635,
+        "svc": 0.31666666666666665
+      },
+      "emowoz": {
+        "macro_f1": 0.09842340029664343,
+        "accuracy": 0.3281334780249593,
+        "weighted_f1": 0.4481586844835431,
+        "svc": 0.3725814774579033
+      }
     }
   },
   "best_theta": 0.35,
-  "spearman_rho": 0.38164027798731515,
+  "spearman_rho": 0.485811288898561,
   "mcnemar_p": {
     "vs_b1": 3.2249533627327993e-19,
     "vs_b2": 1.403243106174092e-19,
@@ -140,10 +182,10 @@
     "vs_b4": 0.004891311452359341
   },
   "sample_explanations": [
-    "Joy (activation 0.66, Low intensity): the event is evaluated as D (0.66), other is responsible (prob 0.83) and the action is evaluated as N (0.73).",
-    "Anger (activation 0.60, Medium intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.60) and the action is evaluated as B (0.64).",
-    "Anger (activation 0.51, Medium intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.61) and the action is evaluated as HB (0.51).",
-    "Remorse (activation 0.55, Medium intensity): the event is evaluated as HU (0.84), self is responsible (prob 0.55) and the action is evaluated as B (0.98).",
-    "Anger (activation 0.78, High intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.78) and the action is evaluated as HB (1.00)."
+    "Joy (activation 0.65, Low intensity): the event is evaluated as D (0.49), other is responsible (prob 0.83) and the action is evaluated as N (0.90).",
+    "Distress (activation 0.52, High intensity): the event is evaluated as HU (1.00), circumstance is responsible (prob 0.34). Secondary emotions: Anger (0.47).",
+    "Anger (activation 0.46, Medium intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.61) and the action is evaluated as B (0.58).",
+    "Remorse (activation 0.66, Medium intensity): the event is evaluated as HU (0.81), self is responsible (prob 0.55) and the action is evaluated as B (0.85). Secondary emotions: Distress (0.40).",
+    "Anger (activation 0.62, High intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.78) and the action is evaluated as HB (1.00)."
   ]
 }

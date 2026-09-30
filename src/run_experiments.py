@@ -95,39 +95,69 @@ def run_all():
     emowoz_test_p = emowoz_preds["p"]
     emowoz_test_pi = emowoz_preds["pi"]
 
-    # 4. Run Ours (OCC-T1FIS)
-    print("\n--- Running Ours (OCC-T1FIS) ---")
-    ours_envent_preds = []
+    # 4. Run Ours (OCC-T1FIS Default, Calibrated, and IT2-FIS)
+    print("\n--- Running Ours (OCC-T1FIS Default) ---")
+    engine_default = FuzzyOCCEngine(use_calibrated=False)
+    ours_def_envent_preds = [
+        engine_default.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent")[0]
+        for i in range(len(envent_test_d))
+    ]
+    ours_def_emowoz_preds = [
+        engine_default.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz")[0]
+        for i in range(len(emowoz_test_d))
+    ]
+    res_ours_def_envent = evaluate_recognition(envent_y_true, ours_def_envent_preds, dataset="envent")
+    res_ours_def_emowoz = evaluate_recognition(emowoz_y_true, ours_def_emowoz_preds, dataset="emowoz")
+    print(f"Ours Default enVENT: Macro-F1={res_ours_def_envent['macro_f1']:.3f}, Acc={res_ours_def_envent['accuracy']:.3f}, SVC={res_ours_def_envent['svc']:.3f}")
+    print(f"Ours Default EmoWOZ: Macro-F1={res_ours_def_emowoz['macro_f1']:.3f}, W-F1={res_ours_def_emowoz['weighted_f1']:.3f}, SVC={res_ours_def_emowoz['svc']:.3f}")
+
+    print("\n--- Running Ours (OCC-T1FIS Calibrated) ---")
+    engine_calib = FuzzyOCCEngine(use_calibrated=True)
+    ours_calib_envent_preds = []
     ours_envent_intensities = []
     ours_envent_explanations = []
     for i in range(len(envent_test_d)):
-        lbl, _, _, inten, _, exp, _ = engine.decide(
+        lbl, _, _, inten, _, exp, _ = engine_calib.decide(
             envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent"
         )
-        ours_envent_preds.append(lbl)
+        ours_calib_envent_preds.append(lbl)
         ours_envent_intensities.append(inten)
         ours_envent_explanations.append(exp)
 
-    ours_emowoz_preds = []
-    for i in range(len(emowoz_test_d)):
-        lbl, _, _, _, _, _, _ = engine.decide(
-            emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz"
-        )
-        ours_emowoz_preds.append(lbl)
+    ours_calib_emowoz_preds = [
+        engine_calib.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz")[0]
+        for i in range(len(emowoz_test_d))
+    ]
+    res_ours_calib_envent = evaluate_recognition(envent_y_true, ours_calib_envent_preds, dataset="envent")
+    res_ours_calib_emowoz = evaluate_recognition(emowoz_y_true, ours_calib_emowoz_preds, dataset="emowoz")
+    print(f"Ours Calibrated enVENT: Macro-F1={res_ours_calib_envent['macro_f1']:.3f}, Acc={res_ours_calib_envent['accuracy']:.3f}, SVC={res_ours_calib_envent['svc']:.3f}")
 
-    res_ours_envent = evaluate_recognition(envent_y_true, ours_envent_preds, dataset="envent")
-    res_ours_emowoz = evaluate_recognition(emowoz_y_true, ours_emowoz_preds, dataset="emowoz")
-    print(f"Ours enVENT: Macro-F1={res_ours_envent['macro_f1']:.3f}, Acc={res_ours_envent['accuracy']:.3f}, SVC={res_ours_envent['svc']:.3f}")
-    print(f"Ours EmoWOZ: Macro-F1={res_ours_emowoz['macro_f1']:.3f}, W-F1={res_ours_emowoz['weighted_f1']:.3f}, SVC={res_ours_emowoz['svc']:.3f}")
+    print("\n--- Running Ours (OCC-IT2FIS Calibrated) ---")
+    engine_it2 = FuzzyOCCEngine(use_calibrated=True, use_it2=True, delta=0.03)
+    ours_it2_envent_preds = [
+        engine_it2.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent")[0]
+        for i in range(len(envent_test_d))
+    ]
+    ours_it2_emowoz_preds = [
+        engine_it2.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz")[0]
+        for i in range(len(emowoz_test_d))
+    ]
+    res_ours_it2_envent = evaluate_recognition(envent_y_true, ours_it2_envent_preds, dataset="envent")
+    res_ours_it2_emowoz = evaluate_recognition(emowoz_y_true, ours_it2_emowoz_preds, dataset="emowoz")
+    print(f"Ours IT2-FIS enVENT: Macro-F1={res_ours_it2_envent['macro_f1']:.3f}, Acc={res_ours_it2_envent['accuracy']:.3f}, SVC={res_ours_it2_envent['svc']:.3f}")
+
+    ours_envent_preds = ours_calib_envent_preds
+    res_ours_envent = res_ours_calib_envent
+    res_ours_emowoz = res_ours_def_emowoz
 
     # 5. Run Ablation A1 (Crisp Inference)
     print("\n--- Running Ablation A1 (Crisp Inference) ---")
     a1_envent_preds = [
-        engine.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent", crisp=True)[0]
+        engine_default.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent", crisp=True)[0]
         for i in range(len(envent_test_d))
     ]
     a1_emowoz_preds = [
-        engine.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz", crisp=True)[0]
+        engine_default.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz", crisp=True)[0]
         for i in range(len(emowoz_test_d))
     ]
     res_a1_envent = evaluate_recognition(envent_y_true, a1_envent_preds, dataset="envent")
@@ -136,11 +166,11 @@ def run_all():
     # 6. Run Ablation A2 (Hard Agent)
     print("\n--- Running Ablation A2 (Hard Agent) ---")
     a2_envent_preds = [
-        engine.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent", hard_agent=True)[0]
+        engine_default.decide(envent_test_d[i], envent_test_p[i], envent_test_pi[i], theta=best_theta, dataset="envent", hard_agent=True)[0]
         for i in range(len(envent_test_d))
     ]
     a2_emowoz_preds = [
-        engine.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz", hard_agent=True)[0]
+        engine_default.decide(emowoz_test_d[i], emowoz_test_p[i], emowoz_test_pi[i], theta=best_theta, dataset="emowoz", hard_agent=True)[0]
         for i in range(len(emowoz_test_d))
     ]
     res_a2_envent = evaluate_recognition(envent_y_true, a2_envent_preds, dataset="envent")
@@ -291,7 +321,10 @@ def run_all():
         "B2_it2": {"envent": res_b2_it2_envent, "emowoz": res_b2_it2_emowoz},
         "B3_vad_probe": {"envent": res_b3_envent, "emowoz": res_b3_emowoz},
         "B4_occ_probe": {"envent": res_b4_envent, "emowoz": res_b4_emowoz},
-        "Ours": {"envent": res_ours_envent, "emowoz": res_ours_emowoz},
+        "Ours_default": {"envent": res_ours_def_envent, "emowoz": res_ours_def_emowoz},
+        "Ours_calib": {"envent": res_ours_calib_envent, "emowoz": res_ours_def_emowoz},
+        "Ours_it2": {"envent": res_ours_it2_envent, "emowoz": res_ours_def_emowoz},
+        "Ours": {"envent": res_ours_calib_envent, "emowoz": res_ours_def_emowoz},
         "A1_crisp": {"envent": res_a1_envent, "emowoz": res_a1_emowoz},
         "A2_hard_agent": {"envent": res_a2_envent, "emowoz": res_a2_emowoz},
         "B1_emowoz_sup": {"envent": None, "emowoz": res_b1_emowoz_sup},

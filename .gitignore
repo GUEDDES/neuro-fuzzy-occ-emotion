@@ -26,3 +26,8 @@ data/*.zip
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Scratch and review temp files
+scratch/
+review/
+results/*.npz
