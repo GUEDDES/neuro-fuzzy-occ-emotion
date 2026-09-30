@@ -11,7 +11,9 @@ data/envent/
 data/emowoz/
 data/*.zip
 
-# LaTeX auxiliary files (keep the source .tex and compiled .pdf)
+# LaTeX files (manuscript source and compiled PDFs are kept private locally)
+*.tex
+*.pdf
 *.aux
 *.log
 *.out

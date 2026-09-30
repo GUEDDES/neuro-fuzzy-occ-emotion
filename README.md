@@ -199,8 +199,6 @@ python src/update_latex.py
 │   └── emowoz_module1_preds.npz  # Zero-shot predictions on EmoWOZ test split
 ├── demo_inference.py             # CLI & interactive demonstration script
 ├── requirements.txt              # Python library dependencies
-├── occ_fuzzy_recognition_conference.tex  # Camera-ready IEEE LaTeX source
-├── occ_fuzzy_recognition_conference.pdf  # Final compiled 7-page IEEE paper
 └── README.md                     # Comprehensive documentation
 ```
 
