@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch checkpoints / model weights (tracked via Git LFS if needed, or ignored if exceeding quotas)
+# Note: models/module1_roberta_occ.pt is tracked by Git LFS in .gitattributes
+
+# Large raw datasets (downloadable automatically via src/data_loader.py)
+data/envent/
+data/emowoz/
+data/*.zip
+
+# LaTeX auxiliary files (keep the source .tex and compiled .pdf)
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+
+# OS specific files
+.DS_Store
+Thumbs.db

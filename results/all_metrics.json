@@ -1,0 +1,149 @@
+{
+  "rq1": {
+    "envent_d_r": 0.8068794657514802,
+    "envent_d_rmse": 0.43615817763985876,
+    "envent_p_r": 0.7414822575162491,
+    "envent_p_rmse": 0.3898308710470724,
+    "envent_agent_f1": 0.697236111615131,
+    "emowoz_valence_acc": 0.9186673199412053,
+    "emowoz_agent_f1": 0.3572567783094099
+  },
+  "main_table": {
+    "B1_direct": {
+      "envent": {
+        "macro_f1": 0.7692174612638304,
+        "accuracy": 0.77,
+        "weighted_f1": 0.7692174612638305,
+        "svc": 0.1725
+      },
+      "emowoz": {
+        "macro_f1": 0.0043859649122807015,
+        "accuracy": 0.488,
+        "weighted_f1": 0.4910705263157895,
+        "svc": 0.11194029850746269
+      }
+    },
+    "B2_t1": {
+      "envent": {
+        "macro_f1": 0.27316861171957113,
+        "accuracy": 0.2866666666666667,
+        "weighted_f1": 0.2731686117195711,
+        "svc": 0.5291666666666667
+      },
+      "emowoz": {
+        "macro_f1": 0.1263023738688484,
+        "accuracy": 0.5934617471513837,
+        "weighted_f1": 0.6096431297638591,
+        "svc": 0.0435795763172189
+      }
+    },
+    "B2_it2": {
+      "envent": {
+        "macro_f1": 0.27316861171957113,
+        "accuracy": 0.2866666666666667,
+        "weighted_f1": 0.2731686117195711,
+        "svc": 0.5291666666666667
+      },
+      "emowoz": {
+        "macro_f1": 0.1263023738688484,
+        "accuracy": 0.5934617471513837,
+        "weighted_f1": 0.6096431297638591,
+        "svc": 0.0435795763172189
+      }
+    },
+    "B3_vad_probe": {
+      "envent": {
+        "macro_f1": 0.375119360869178,
+        "accuracy": 0.465,
+        "weighted_f1": 0.375119360869178,
+        "svc": 0.4016666666666666
+      },
+      "emowoz": {
+        "macro_f1": 0.03768115942028986,
+        "accuracy": 0.721106890938687,
+        "weighted_f1": 0.647639529115426,
+        "svc": 0.0021727322107550242
+      }
+    },
+    "B4_occ_probe": {
+      "envent": {
+        "macro_f1": 0.5915180295535444,
+        "accuracy": 0.5966666666666667,
+        "weighted_f1": 0.5915180295535443,
+        "svc": 0.275
+      },
+      "emowoz": {
+        "macro_f1": 0.03532219570405728,
+        "accuracy": 0.7297883884970158,
+        "weighted_f1": 0.6494787926819597,
+        "svc": 0.0008147745790331341
+      }
+    },
+    "Ours": {
+      "envent": {
+        "macro_f1": 0.5448160800303401,
+        "accuracy": 0.5483333333333333,
+        "weighted_f1": 0.5448160800303402,
+        "svc": 0.3375
+      },
+      "emowoz": {
+        "macro_f1": 0.09842340029664343,
+        "accuracy": 0.3281334780249593,
+        "weighted_f1": 0.4481586844835431,
+        "svc": 0.3725814774579033
+      }
+    },
+    "A1_crisp": {
+      "envent": {
+        "macro_f1": 0.5495896217034708,
+        "accuracy": 0.5516666666666666,
+        "weighted_f1": 0.5495896217034708,
+        "svc": 0.3283333333333333
+      },
+      "emowoz": {
+        "macro_f1": 0.08540571882585428,
+        "accuracy": 0.3800868149755833,
+        "weighted_f1": 0.4928478628077722,
+        "svc": 0.34438484519282997
+      }
+    },
+    "A2_hard_agent": {
+      "envent": {
+        "macro_f1": 0.5436374958072793,
+        "accuracy": 0.5466666666666666,
+        "weighted_f1": 0.5436374958072793,
+        "svc": 0.3383333333333333
+      },
+      "emowoz": {
+        "macro_f1": 0.09351013055162098,
+        "accuracy": 0.32704829083016823,
+        "weighted_f1": 0.44707407425430595,
+        "svc": 0.37752580119500273
+      }
+    },
+    "B1_emowoz_sup": {
+      "envent": null,
+      "emowoz": {
+        "macro_f1": 0.05119047619047619,
+        "accuracy": 0.593,
+        "weighted_f1": 0.5827819433520138,
+        "svc": 0.004970178926441352
+      }
+    }
+  },
+  "best_theta": 0.35,
+  "spearman_rho": 0.38164027798731515,
+  "mcnemar_p": {
+    "vs_b1": 3.2249533627327993e-19,
+    "vs_b2": 1.403243106174092e-19,
+    "vs_b3": 0.00028110054099173915,
+    "vs_b4": 0.004891311452359341
+  },
+  "sample_explanations": [
+    "Joy (activation 0.66, Low intensity): the event is evaluated as D (0.66), other is responsible (prob 0.83) and the action is evaluated as N (0.73).",
+    "Anger (activation 0.60, Medium intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.60) and the action is evaluated as B (0.64).",
+    "Anger (activation 0.51, Medium intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.61) and the action is evaluated as HB (0.51).",
+    "Remorse (activation 0.55, Medium intensity): the event is evaluated as HU (0.84), self is responsible (prob 0.55) and the action is evaluated as B (0.98).",
+    "Anger (activation 0.78, High intensity): the event is evaluated as HU (1.00), other is responsible (prob 0.78) and the action is evaluated as HB (1.00)."
+  ]
+}
